@@ -1,0 +1,30 @@
+{% extends "comm_app/base.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">name</th>
+          <th scope="col">rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name, rating in top_users %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ name }}</td>
+            <td>{{ rating }}</td>
+          </tr>
+        {% empty %}
+          <tr><td></td><td colspan="2">Nobody in top</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+{% endblock content %}

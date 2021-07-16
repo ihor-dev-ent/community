@@ -1,0 +1,127 @@
+{% extends "comm_app/base.html" %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'comm_app:edit_profile' %}">
+  {% csrf_token %}
+  <input type="email" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ user.email }}">
+  <input type="password" class="form-control mt-3" id="pwd" placeholder="password" name="pwd">
+  <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd">
+  <button type="submit" class="form-control btn btn-success mt-3">EDIT</button>
+</form>
+{% else %}
+<div class="row align-items-center mt-3">
+  <div class="col-md"></div>
+  <div class="col-md-6">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">LOGIN</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">REGISTER</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+        {% if password_reset %}
+        <form method="post" action="{% url 'comm_app:password_reset' %}">
+          {% csrf_token %}
+          <input type="text" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ email }}" required>
+          <div class="input-group mt-3">
+            <button type="submit" class="form-control btn btn-success">RESET PASSWORD</button>
+            <a href="{% url 'comm_app:login' %}" class="form-control btn btn-default">CANCEL</a>
+          </div>
+        </form>
+        {% else %}
+        <form method="post" action="{% url 'comm_app:login' %}">
+          {% csrf_token %}
+          <input type="text" class="form-control mt-3" id="uname" placeholder="username or email" name="uname" value="{{ uname }}" required>
+          <input type="password" class="form-control mt-3" id="pwd" placeholder="password" name="pwd" required>
+          <div class="input-group mt-3">
+            <button type="submit" class="form-control btn btn-success">LOGIN</button>
+            <span class="form-control input-group-text">Forgot&nbsp;<a href="{% url 'comm_app:password_reset' %}" class="link-dark">password?</a></span>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+        <form method="post" id="register_form" action="{% url 'comm_app:register' %}">
+          {% csrf_token %}
+          <div id="register_main" class="{% if not invite_code %}d-none{% endif %}">
+            <input type="text" class="form-control mt-3" id="uname_reg" placeholder="username" name="uname" value="{{ uname }}" required>
+            <input type="email" class="form-control mt-3" id="email_reg" placeholder="email" name="email" value="{{ email }}" required>
+            <input type="password" class="form-control mt-3" id="pwd_reg" placeholder="password" name="pwd" required>
+            <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd" required>
+            <button type="submit" id="btn_reg" class="form-control btn btn-success mt-3">REGISTER</button>
+          </div>
+          <div id="register_icode" class="{% if invite_code %}d-none{% endif %}">
+            <input type="text" class="form-control mt-3" id="icode" placeholder="invite code" name="icode" value="{{ icode }}">
+            <div class="input-group mt-3">
+              <button type="button" id="btn_reg_icode" class="form-control btn btn-success">REGISTER</button>
+              {% if users_count < 5 %}
+              <button type="button" id="btn_skip_icode" class="form-control btn btn-default">SKIP</button>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> <!-- col-sm-4 -->
+  <div class="col-md"></div>
+</div> <!-- row -->
+{% endif %}
+{% endblock content %}
+{% block javascript %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+      $(document).ready(function () {
+          $('#btn_reg_icode').click(function () {
+                $.ajax({
+                    data: $('#register_form').serialize(),
+                  type: 'POST',//$(this).attr('method'),
+                  url: "{% url 'comm_app:register' %}",
+                  
+                  success: function (response) {
+                        if (response.reg_complite) {
+                          window.location.href = "{% url 'comm_app:login' %}";
+                      } else if (response.invite_code) {
+                          $('#register_main').removeClass('d-none');
+                          $('#register_icode').addClass('d-none');
+                      } else if (response.wrong_code) {
+                          add_alert('Wrong invite code.', 'danger');
+                      }
+                  },
+                  
+                  error: function (response) {
+                        alert(response.responseJSON.errors);
+                      console.log(response.responseJSON.errors)
+                  }
+              });
+              return false;
+          });
+          $('#btn_skip_icode').click(function () {
+                $.ajax({
+                  type: 'GET',
+                  url: "{% url 'comm_app:skip_code' %}",
+                  
+                  success: function (response) {
+                        if (response.skip) {
+                          $('#icode').val("");
+                          $('#register_main').removeClass('d-none');
+                          $('#register_icode').addClass('d-none');
+                      } else {
+                          add_alert('Required to fill in the invite code.');
+                      }
+                  },
+                  
+                  error: function (response) {
+                      alert(response.responseJSON.errors);
+                      console.log(response.responseJSON.errors)
+                  }
+              });
+              return false;
+          });
+        })
+  </script>
+{% endblock javascript %}

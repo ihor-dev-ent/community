@@ -1,0 +1,108 @@
+{% extends "comm_app/base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <h1>Welcome to COMMUNITY</h1>
+  {% if user.is_authenticated %}
+	{% if not user.person.verification_code %}
+	    <dl class="row">
+          <dt class="col-sm-2">Invite code:</dt>
+          <dd id="your_code" class="col-sm-10">
+            {% if user.person.invite_code %}
+    	      <b class="text-white">{{ user.person.invite_code }}</b>
+     	    {% else %}
+     	      <button id="generate_code" type="button" class="btn btn-success">Generate invite code</button>
+	        {% endif %}
+          </dd>
+	      <dt class="col-sm-2">Rating:</dt>
+	      <dd class="col-sm-10"><b class="text-white">{{ user.person.rating }}</b></dd>
+	      {% if user.person.inviter %}
+	      <dt class="col-sm-2">Inviter:</dt>
+	      <dd class="col-sm-10"><b class="text-white">{{ user.person.inviter.user }}</b></dd>
+	      {% endif %}
+	      <dt class="col-sm-2">Invited users:</dt>
+	      <dd class="col-sm-10">
+	      	<table class="table table-sm">
+	        <thead>
+	          <tr>
+	            <th scope="col">#</th>
+	            <th scope="col">name</th>
+	            <th scope="col">rating</th>
+	          </tr>
+	        </thead>
+	        <tbody>
+	          {% for p in user.person.invited_persons.all %}
+	            <tr>
+	              <th scope="row">{{ forloop.counter }}</th>
+	              <td>{{ p.user.username }}</td>
+	              <td>{{ p.rating }}</td>
+	            </tr>
+	          {% empty %}
+	            <tr><td></td><td colspan="2">Nobody invited</td></tr>
+	          {% endfor %}
+	        </tbody>
+	      </table>
+	     </dd>
+	{% else %}
+	  <p>To view the page, you need to confirm your <b class="text-warning">email address</b> !</p>
+	  <form method="post" action="{% url 'comm_app:confirm_code' %}" class="col-md-6">
+          {% csrf_token %}
+          <input type="text" class="form-control mt-3" id="verification_code" placeholder="confirm code" name="verification_code" required>
+          <div class="input-group mt-3">
+            <button type="submit" class="form-control btn btn-success">CONFIRM</button>
+            <span class="form-control input-group-text"><a id="send_code" href="{% url 'comm_app:confirm_code' %}" class="link-dark">Send code again</a></span>
+          </div>
+      </form>
+	{% endif %}
+  {% else %}
+    <a href="{% url 'comm_app:login' %}" class="link-dark">Login to view this page.</a>
+  {% endif %}
+</div>
+{% endblock content %}
+{% block javascript %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+  	  $(document).ready(function () {
+          $('#generate_code').click(function () {
+                $.ajax({
+                  url: "{% url 'comm_app:generate_code' %}",
+                  success: function (response) {
+                      if (response.icode) {
+                          $('#your_code').html('<h2 class="text-white">' + response.icode + '</h2>');
+                      }
+                  },
+                  
+                  error: function (response) {
+                      alert(response.responseJSON.errors);
+                      console.log(response.responseJSON.errors)
+                  }
+              });
+              return false;
+          });
+          $('#send_code').click(function () {
+                $.ajax({
+                  type: 'GET',
+                  url: "{% url 'comm_app:confirm_code' %}",
+                  
+                  success: function (response) {
+                  	  console.log("sended succ")
+                      if (response.sended) {
+                      	add_alert('A new confirm code has been sent to your email address.', 'success');
+                      } else if (response.anonymous) {
+                      	  add_alert('You must be logged in to send the code.');
+                      } else {
+                      	  add_alert('Wrong request. Try again later.');
+                      }
+                  },
+                  
+                  error: function (response) {
+                      alert(response.responseJSON.errors);
+                      console.log(response.responseJSON.errors)
+                  }
+              });
+              return false;
+          });
+        })
+  </script>
+{% endblock javascript %}
