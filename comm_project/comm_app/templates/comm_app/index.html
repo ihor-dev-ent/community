@@ -5,7 +5,7 @@
 <div class="row">
   <h1>Welcome to COMMUNITY</h1>
   {% if user.is_authenticated %}
-	{% if not user.person.verification_code %}
+	  {% if not user.person.verification_code %}
 	    <dl class="row">
           <dt class="col-sm-2">Invite code:</dt>
           <dd id="your_code" class="col-sm-10">
@@ -44,17 +44,18 @@
 	        </tbody>
 	      </table>
 	     </dd>
-	{% else %}
-	  <p>To view the page, you need to confirm your <b class="text-warning">email address</b> !</p>
-	  <form method="post" action="{% url 'comm_app:confirm_code' %}" class="col-md-6">
+	  {% else %}
+	    <p>To view the page, you need to confirm your <b class="text-warning">email address</b> !</p>
+	    <form method="post" action="{% url 'comm_app:confirm_code' %}" class="col-md-6">
           {% csrf_token %}
-          <input type="text" class="form-control mt-3" id="verification_code" placeholder="confirm code" name="verification_code" required>
+          <!-- <input type="text" class="form-control mt-3" id="verification_code" placeholder="confirm code" name="verification_code" required> -->
+          {{ form.verification_code }}
           <div class="input-group mt-3">
             <button type="submit" class="form-control btn btn-success">CONFIRM</button>
             <span class="form-control input-group-text"><a id="send_code" href="{% url 'comm_app:confirm_code' %}" class="link-dark">Send code again</a></span>
           </div>
       </form>
-	{% endif %}
+	  {% endif %}
   {% else %}
     <a href="{% url 'comm_app:login' %}" class="link-dark">Login to view this page.</a>
   {% endif %}

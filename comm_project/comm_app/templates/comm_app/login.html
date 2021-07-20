@@ -5,9 +5,12 @@
 {% if user.is_authenticated %}
 <form method="post" action="{% url 'comm_app:edit_profile' %}">
   {% csrf_token %}
-  <input type="email" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ user.email }}">
+  <!-- <input type="email" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ user.email }}">
   <input type="password" class="form-control mt-3" id="pwd" placeholder="password" name="pwd">
-  <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd">
+  <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd"> -->
+  {{ form_reg.email }}
+  {{ form_reg.pwd }}
+  {{ form_reg.chk_pwd }}
   <button type="submit" class="form-control btn btn-success mt-3">EDIT</button>
 </form>
 {% else %}
@@ -27,7 +30,8 @@
         {% if password_reset %}
         <form method="post" action="{% url 'comm_app:password_reset' %}">
           {% csrf_token %}
-          <input type="text" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ email }}" required>
+          <!-- <input type="text" class="form-control mt-3" id="email" placeholder="email" name="email" value="{{ email }}" required> -->
+          {{ form_reg.email }}
           <div class="input-group mt-3">
             <button type="submit" class="form-control btn btn-success">RESET PASSWORD</button>
             <a href="{% url 'comm_app:login' %}" class="form-control btn btn-default">CANCEL</a>
@@ -36,8 +40,10 @@
         {% else %}
         <form method="post" action="{% url 'comm_app:login' %}">
           {% csrf_token %}
-          <input type="text" class="form-control mt-3" id="uname" placeholder="username or email" name="uname" value="{{ uname }}" required>
-          <input type="password" class="form-control mt-3" id="pwd" placeholder="password" name="pwd" required>
+          <!-- <input type="text" class="form-control mt-3" id="uname" placeholder="username or email" name="uname" value="{{ uname }}" required>
+          <input type="password" class="form-control mt-3" id="pwd" placeholder="password" name="pwd" required> -->
+          {{ form.uname }}
+          {{ form.pwd }}
           <div class="input-group mt-3">
             <button type="submit" class="form-control btn btn-success">LOGIN</button>
             <span class="form-control input-group-text">Forgot&nbsp;<a href="{% url 'comm_app:password_reset' %}" class="link-dark">password?</a></span>
@@ -49,14 +55,19 @@
         <form method="post" id="register_form" action="{% url 'comm_app:register' %}">
           {% csrf_token %}
           <div id="register_main" class="{% if not invite_code %}d-none{% endif %}">
-            <input type="text" class="form-control mt-3" id="uname_reg" placeholder="username" name="uname" value="{{ uname }}" required>
+            <!-- <input type="text" class="form-control mt-3" id="uname_reg" placeholder="username" name="uname" value="{{ uname }}" required>
             <input type="email" class="form-control mt-3" id="email_reg" placeholder="email" name="email" value="{{ email }}" required>
             <input type="password" class="form-control mt-3" id="pwd_reg" placeholder="password" name="pwd" required>
-            <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd" required>
+            <input type="password" class="form-control mt-3" id="chk_pwd" placeholder="confirm password" name="chk_pwd" required> -->
+            {{ form_reg.uname }}
+            {{ form_reg.email }}
+            {{ form_reg.pwd }}
+            {{ form_reg.chk_pwd }}
             <button type="submit" id="btn_reg" class="form-control btn btn-success mt-3">REGISTER</button>
           </div>
           <div id="register_icode" class="{% if invite_code %}d-none{% endif %}">
-            <input type="text" class="form-control mt-3" id="icode" placeholder="invite code" name="icode" value="{{ icode }}">
+            <!-- <input type="text" class="form-control mt-3" id="icode" placeholder="invite code" name="icode" value="{{ icode }}"> -->
+            {{ form_reg.icode }}
             <div class="input-group mt-3">
               <button type="button" id="btn_reg_icode" class="form-control btn btn-success">REGISTER</button>
               {% if users_count < 5 %}

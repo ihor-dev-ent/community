@@ -49,7 +49,19 @@
                   {{ message }}
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-        		{% endfor %}
+        		  {% endfor %}
+              {% if form and form.errors %}
+                <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                  {{ form.errors.as_text }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endif %}
+              {% if form_reg and form_reg.errors %}
+                <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                  {{ form_reg.errors.as_text }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endif %}
             </div>
             {% block content %}{% endblock %}
             <script type="text/javascript">
